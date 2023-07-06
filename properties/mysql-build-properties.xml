@@ -2,31 +2,28 @@
 
 <project name="MySQL Properties" default="all" basedir=".">
 
-
     <property name="JAVAC" value="/home/juan/NetBeansJDKs/jdk1.8.0_371/bin/javac"/>
     <property name="JAVA" value="/home/juan/NetBeansJDKs/jdk1.8.0_371/bin/java"/>
 
+    <property name="PROPERTIESFILE" value="properties/mysql-sample-properties.xml"/>
+    <property name="MYSQLDRIVER" value="/usr/share/java/mysql-connector-j-8.0.33.jar"/>
 
-  <property name="PROPERTIESFILE" value="properties/mysql-sample-properties.xml"/>
-  <property name="MYSQLDRIVER" value="/usr/share/java/mysql-connector-j.jar"/>
+    <path id="CLASSPATH">
+        <pathelement location="classes"/>
+        <pathelement location="${MYSQLDRIVER}"/>
+        <pathelement location="lib/JDBCTutorial.jar"/>
+    </path>
 
-  <path id="CLASSPATH">
-    <pathelement location="classes"/>
-    <pathelement location="${MYSQLDRIVER}"/>
-    <pathelement location="lib/JDBCTutorial.jar"/>
-  </path>
-
-
-  <property name="DB.VENDOR" value="mysql"/>
-  <property name="DB.DRIVER" value="com.mysql.cj.jdbc.Driver"/>
-  <property name="DB.HOST" value="localhost"/>
-  <property name="DB.PORT" value="3306"/>
-  <property name="DB.SID" value="testdb"/>
-  <property name="DB.URL.NEWDATABASE" value="jdbc:mysql://${DB.HOST}:${DB.PORT}/?allowMultiQueries=true"/>
-  <property name="DB.URL" value="jdbc:mysql://${DB.HOST}:${DB.PORT}/${DB.SID}?allowMultiQueries=true"/>
-  <property name="DB.USER" value="juan"/>
-  <property name="DB.PASSWORD" value=""/>
-  <property name="DB.DELIMITER" value=";"/>
+    <property name="DB.VENDOR" value="mysql"/>
+    <property name="DB.DRIVER" value="com.mysql.cj.jdbc.Driver"/>
+    <property name="DB.HOST" value="localhost"/>
+    <property name="DB.PORT" value="3306"/>
+    <property name="DB.SID" value="testdb"/>
+    <property name="DB.URL.NEWDATABASE" value="jdbc:mysql://${DB.HOST}:${DB.PORT}/?allowMultiQueries=true"/>
+    <property name="DB.URL" value="jdbc:mysql://${DB.HOST}:${DB.PORT}/${DB.SID}?allowMultiQueries=true"/>
+    <property name="DB.USER" value="juan"/>
+    <property name="DB.PASSWORD" value=""/>
+    <property name="DB.DELIMITER" value=";"/>
 
 </project>
 
