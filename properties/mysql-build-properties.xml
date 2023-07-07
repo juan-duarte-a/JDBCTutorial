@@ -6,7 +6,7 @@
     <property name="JAVA" value="/home/juan/NetBeansJDKs/jdk1.8.0_371/bin/java"/>
 
     <property name="PROPERTIESFILE" value="properties/mysql-sample-properties.xml"/>
-    <property name="MYSQLDRIVER" value="/usr/share/java/mysql-connector-j-8.0.33.jar"/>
+    <property name="MYSQLDRIVER" value="/usr/share/java/mysql-connector-j.jar"/>
 
     <path id="CLASSPATH">
         <pathelement location="classes"/>
