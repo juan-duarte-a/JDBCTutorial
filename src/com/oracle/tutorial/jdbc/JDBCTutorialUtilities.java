@@ -278,7 +278,7 @@ public class JDBCTutorialUtilities {
             conn = DriverManager.getConnection(currentUrlString, connectionProps);
 
             this.urlString = currentUrlString + this.dbName;
-            conn.setCatalog(this.dbName);
+
         } else if (this.dbms.equals("derby")) {
             this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
 
@@ -373,6 +373,15 @@ public class JDBCTutorialUtilities {
             // Java DB does not have an SQL create database command; it does require createDatabase
             JDBCTutorialUtilities.createDatabase(myConnection,
                     myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
+            
+            myConnection.setCatalog(myJDBCTutorialUtilities.dbName);            
+            
+            JDBCTutorialUtilities.initializeTables(myConnection, 
+                    myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
+            
+            System.out.println();
+            CoffeesTable.viewTable(myConnection);
+            System.out.println();
 
             JDBCTutorialUtilities.cursorHoldabilitySupport(myConnection);
             JDBCTutorialUtilities.rowIdLifetime(myConnection);

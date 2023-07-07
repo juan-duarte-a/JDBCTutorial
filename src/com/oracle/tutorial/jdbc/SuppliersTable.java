@@ -80,15 +80,15 @@ public class SuppliersTable {
 
     public void populateTable() throws SQLException {
         try (Statement stmt = con.createStatement()) {
-            stmt.executeUpdate("insert into SUPPLIERS " +
-                                                 "values(49, 'Superior Coffee', '1 Party Place', " +
-                                                 "'Mendocino', 'CA', '95460')");
-            stmt.executeUpdate("insert into SUPPLIERS " +
-                                                 "values(101, 'Acme, Inc.', '99 Market Street', " +
-                                                 "'Groundsville', 'CA', '95199')");
-            stmt.executeUpdate("insert into SUPPLIERS " +
-                                                 "values(150, 'The High Ground', '100 Coffee Lane', " +
-                                                 "'Meadows', 'CA', '93966')");
+            stmt.executeUpdate("insert into SUPPLIERS " 
+                    + "values(49, 'Superior Coffee', '1 Party Place', " 
+                    + "'Mendocino', 'CA', '95460')");
+            stmt.executeUpdate("insert into SUPPLIERS " 
+                    + "values(101, 'Acme, Inc.', '99 Market Street', " 
+                    + "'Groundsville', 'CA', '95199')");
+            stmt.executeUpdate("insert into SUPPLIERS " 
+                    + "values(150, 'The High Ground', '100 Coffee Lane', " 
+                    + "'Meadows', 'CA', '93966')");
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }
@@ -122,8 +122,8 @@ public class SuppliersTable {
                 String city = rs.getString("CITY");
                 String state = rs.getString("STATE");
                 String zip = rs.getString("ZIP");
-                System.out.println(supplierName + "(" + supplierID + "): " + street +
-                                                     ", " + city + ", " + state + ", " + zip);
+                System.out.println(supplierName + "(" + supplierID + "): " + street 
+                        + ", " + city + ", " + state + ", " + zip);
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
@@ -151,13 +151,9 @@ public class SuppliersTable {
             myConnection = myJDBCTutorialUtilities.getConnection();
 
             // Java DB does not have an SQL create database command; it does require createDatabase
-//            JDBCTutorialUtilities.createDatabase(myConnection,
-//                                                                                     myJDBCTutorialUtilities.dbName,
-//                                                                                     myJDBCTutorialUtilities.dbms);
+//            JDBCTutorialUtilities.createDatabase(myConnection, myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
 //
-//            JDBCTutorialUtilities.initializeTables(myConnection,
-//                                                                                         myJDBCTutorialUtilities.dbName,
-//                                                                                         myJDBCTutorialUtilities.dbms);
+//            JDBCTutorialUtilities.initializeTables(myConnection, myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
             
             System.out.println("\nContents of SUPPLIERS table:");
             

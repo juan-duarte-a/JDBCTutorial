@@ -31,9 +31,9 @@
 
 package com.oracle.tutorial.jdbc;
 
+import java.io.IOException;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,9 +47,9 @@ import java.util.Set;
 
 public class CoffeesTable {
 
-    private String dbName;
-    private Connection con;
-    private String dbms;
+    private final String dbName;
+    private final Connection con;
+    private final String dbms;
 
 
     public CoffeesTable(Connection connArg, String dbNameArg, String dbmsArg) {
@@ -235,14 +235,17 @@ public class CoffeesTable {
     
     public static void viewTable(Connection con) throws SQLException {
         String query = "select COF_NAME, SUP_ID, PRICE, SALES, TOTAL from COFFEES";
+        
         try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
+            
             while (rs.next()) {
                 String coffeeName = rs.getString("COF_NAME");
                 int supplierID = rs.getInt("SUP_ID");
                 float price = rs.getFloat("PRICE");
                 int sales = rs.getInt("SALES");
                 int total = rs.getInt("TOTAL");
+                
                 System.out.println(coffeeName + ", " + supplierID + ", " + price 
                         + ", " + sales + ", " + total);
             }
@@ -253,14 +256,17 @@ public class CoffeesTable {
 
     public static void alternateViewTable(Connection con) throws SQLException {
         String query = "select COF_NAME, SUP_ID, PRICE, SALES, TOTAL from COFFEES";
+        
         try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
+            
             while (rs.next()) {
                 String coffeeName = rs.getString(1);
                 int supplierID = rs.getInt(2);
                 float price = rs.getFloat(3);
                 int sales = rs.getInt(4);
                 int total = rs.getInt(5);
+                
                 System.out.println(coffeeName + ", " + supplierID + ", " + price 
                         + ", " + sales + ", " + total);
             }
@@ -270,10 +276,12 @@ public class CoffeesTable {
     }
     
     public Set<String> getKeys() throws SQLException {
-        HashSet<String> keys = new HashSet<String>();
+        HashSet<String> keys = new HashSet<>();
         String query = "select COF_NAME from COFFEES";
+        
         try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
+            
             while (rs.next()) {
                 keys.add(rs.getString(1));
             }
@@ -299,21 +307,25 @@ public class CoffeesTable {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
         Connection myConnection = null;
 
-        if (args[0] == null) {
-            System.err.println("Properties file not specified at command line");
+//        if (args[0] == null) {
+//            System.err.println("Properties file not specified at command line");
+//            return;
+//        } else {
+        try {
+            myJDBCTutorialUtilities = new JDBCTutorialUtilities(
+                    "/home/juan/NetBeansProjects/JDBCTutorial/properties/mysql-sample-properties.xml");
+        } catch (IOException e) {
+            System.err.println("Problem reading properties file " 
+                    + "/home/juan/NetBeansProjects/JDBCTutorial/properties/mysql-sample-properties.xml");
+            e.printStackTrace(System.err);
             return;
-        } else {
-            try {
-                myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
-                System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
-                return;
-            }
         }
+//        }
 
         try {
             myConnection = myJDBCTutorialUtilities.getConnection();
+            
+            myConnection.setCatalog(myJDBCTutorialUtilities.dbName);  
 
             // Java DB does not have an SQL create database command; it does require createDatabase
 //            JDBCTutorialUtilities.createDatabase(myConnection, myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
@@ -335,7 +347,7 @@ public class CoffeesTable {
             CoffeesTable.viewTable(myConnection);
 
             System.out.println("\nUpdating sales of coffee per week:");
-            HashMap<String, Integer> salesCoffeeWeek = new HashMap<String, Integer>();
+            HashMap<String, Integer> salesCoffeeWeek = new HashMap<>();
             salesCoffeeWeek.put("Colombian", 175);
             salesCoffeeWeek.put("French_Roast", 150);
             salesCoffeeWeek.put("Espresso", 60);
@@ -350,11 +362,11 @@ public class CoffeesTable {
             
             System.out.println("\nCOFFEES table after modifying prices by percentage:");
             
-            myCoffeeTable.viewTable(myConnection);
+            CoffeesTable.viewTable(myConnection);
 
             System.out.println("\nPerforming batch updates; adding new coffees");
             myCoffeeTable.batchUpdate();
-            myCoffeeTable.viewTable(myConnection);
+            CoffeesTable.viewTable(myConnection);
 
 //            System.out.println("\nDropping Coffee and Suplliers table:");
 //            
