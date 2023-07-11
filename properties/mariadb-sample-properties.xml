@@ -2,7 +2,7 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
-    <entry key="dbms">mysql</entry>
+    <entry key="dbms">mariadb</entry>
     <entry key="driver">org.mariadb.jdbc.Driver</entry>
     <entry key="database_name">testdb</entry>
     <entry key="user_name">juan</entry>
