@@ -53,11 +53,9 @@ public class CoffeesTable {
 
 
     public CoffeesTable(Connection connArg, String dbNameArg, String dbmsArg) {
-        super();
         this.con = connArg;
         this.dbName = dbNameArg;
         this.dbms = dbmsArg;
-
     }
 
     public void createTable() throws SQLException {
@@ -293,7 +291,7 @@ public class CoffeesTable {
 
     public void dropTable() throws SQLException {
         try (Statement stmt = con.createStatement()) {
-            if (this.dbms.equals("mysql")) {
+            if (this.dbms.equals("mysql") || this.dbms.equals("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS COFFEES");
             } else if (this.dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE COFFEES");
@@ -307,25 +305,23 @@ public class CoffeesTable {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
         Connection myConnection = null;
 
-//        if (args[0] == null) {
-//            System.err.println("Properties file not specified at command line");
-//            return;
-//        } else {
-        try {
-            myJDBCTutorialUtilities = new JDBCTutorialUtilities(
-                    "/home/juan/NetBeansProjects/JDBCTutorial/properties/mysql-sample-properties.xml");
-        } catch (IOException e) {
-            System.err.println("Problem reading properties file " 
-                    + "/home/juan/NetBeansProjects/JDBCTutorial/properties/mysql-sample-properties.xml");
-            e.printStackTrace(System.err);
+        if (args.length == 0) {
+            System.err.println("Properties file not specified at command line");
             return;
+        } else {
+            try {
+                myJDBCTutorialUtilities = new JDBCTutorialUtilities(
+                        args[0]);
+            } catch (IOException e) {
+                System.err.println("Problem reading properties file " + args[0]);
+                e.printStackTrace(System.err);
+                return;
+            }
         }
-//        }
 
         try {
             myConnection = myJDBCTutorialUtilities.getConnection();
             
-            myConnection.setCatalog(myJDBCTutorialUtilities.dbName);  
 
             // Java DB does not have an SQL create database command; it does require createDatabase
 //            JDBCTutorialUtilities.createDatabase(myConnection, myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
@@ -335,6 +331,12 @@ public class CoffeesTable {
             CoffeesTable myCoffeeTable =
                 new CoffeesTable(myConnection, myJDBCTutorialUtilities.dbName, 
                         myJDBCTutorialUtilities.dbms);
+            
+            myConnection.setCatalog(myCoffeeTable.dbName);
+            
+            myCoffeeTable.dropTable();
+            myCoffeeTable.createTable();
+            myCoffeeTable.populateTable();
 
             System.out.println("\nContents of COFFEES table:");
             CoffeesTable.viewTable(myConnection);
