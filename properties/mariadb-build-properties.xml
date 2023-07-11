@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="MySQL Properties" default="all" basedir=".">
+
+    <property name="JAVAC" value="/home/juan/NetBeansJDKs/jdk1.8.0_371/bin/javac"/>
+    <property name="JAVA" value="/home/juan/NetBeansJDKs/jdk1.8.0_371/bin/java"/>
+
+    <property name="PROPERTIESFILE" value="properties/mariadb-sample-properties.xml"/>
+    <property name="MYSQLDRIVER" value="/home/juan/NetBeansJDKs/mariadb-java-client-3.1.4.jar"/>
+
+    <path id="CLASSPATH">
+        <pathelement location="classes"/>
+        <pathelement location="${MYSQLDRIVER}"/>
+        <pathelement location="lib/JDBCTutorial.jar"/>
+    </path>
+
+    <property name="DB.VENDOR" value="mariadb"/>
+    <property name="DB.DRIVER" value="org.mariadb.jdbc.Driver"/>
+    <property name="DB.HOST" value="localhost"/>
+    <property name="DB.PORT" value="3306"/>
+    <property name="DB.SID" value="testdb"/>
+    <property name="DB.URL.NEWDATABASE" value="jdbc:mariadb://${DB.HOST}:${DB.PORT}/?allowMultiQueries=true"/>
+    <property name="DB.URL" value="jdbc:mariadb//${DB.HOST}:${DB.PORT}/${DB.SID}?allowMultiQueries=true"/>
+    <property name="DB.USER" value="juan"/>
+    <property name="DB.PASSWORD" value="*321ewqDSA/"/>
+    <property name="DB.DELIMITER" value=";"/>
+
+</project>
+
+

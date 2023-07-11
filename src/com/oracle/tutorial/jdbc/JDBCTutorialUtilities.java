@@ -272,17 +272,25 @@ public class JDBCTutorialUtilities {
 
         String currentUrlString;
 
-        if (this.dbms.equals("mysql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName
-                    + ":" + this.portNumber + "/";
-            conn = DriverManager.getConnection(currentUrlString, connectionProps);
-
-            this.urlString = currentUrlString + this.dbName;
-
-        } else if (this.dbms.equals("derby")) {
-            this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
-
-            conn = DriverManager.getConnection(this.urlString + ";create=true", connectionProps);
+        switch (this.dbms) {
+            case "mysql":
+                currentUrlString = "jdbc:mysql://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = DriverManager.getConnection(currentUrlString, connectionProps);
+                this.urlString = currentUrlString + this.dbName;
+                break;
+            case "mariadb":
+                currentUrlString = "jdbc:mariadb://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = DriverManager.getConnection(currentUrlString, connectionProps);
+                this.urlString = currentUrlString + this.dbName;
+                break;
+            case "derby":
+                this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
+                conn = DriverManager.getConnection(this.urlString + ";create=true", connectionProps);
+                break;
+            default:
+                break;
         }
         System.out.println("Connected to database");
         return conn;
@@ -296,21 +304,32 @@ public class JDBCTutorialUtilities {
         
         String currentUrlString;
         
-        if (this.dbms.equals("mysql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName
-                    + ":" + this.portNumber + "/";
-            conn = DriverManager.getConnection(currentUrlString, connectionProps);
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("derby")) {
-            conn = DriverManager.getConnection("jdbc:" + this.dbms + ":" + this.dbName
-                    + ";create=true", connectionProps);
+        switch (this.dbms) {
+            case "mysql":
+                currentUrlString = "jdbc:mysql://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = DriverManager.getConnection(currentUrlString, connectionProps);
+                conn.setCatalog(this.dbName);
+                break;
+            case "mariadb":
+                currentUrlString = "jdbc:mariadb://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = DriverManager.getConnection(currentUrlString, connectionProps);
+                conn.setCatalog(this.dbName);
+                break;
+            case "derby":
+                conn = DriverManager.getConnection("jdbc:" + this.dbms + ":" + this.dbName
+                        + ";create=true", connectionProps);
+                break;
+            default:
+                break;
         }
         return conn;
     }
 
     public static void createDatabase(Connection connArg, String dbNameArg, String dbmsArg) {
 
-        if (dbmsArg.equals("mysql")) {
+        if (dbmsArg.equals("mysql") || dbmsArg.equals("mariadb")) {
             try {
                 Statement s = connArg.createStatement();
                 String newDatabaseString
