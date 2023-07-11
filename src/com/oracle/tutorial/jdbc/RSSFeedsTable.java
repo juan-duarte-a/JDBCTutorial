@@ -92,7 +92,7 @@ public class RSSFeedsTable {
 
     public void dropTable() throws SQLException {
         try (Statement stmt = con.createStatement()){
-            if (this.dbms.equals("mysql")) {
+            if (dbms.equals("mysql") || dbms.startsWith("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS RSS_FEEDS");
             } else if (this.dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE RSS_FEEDS");

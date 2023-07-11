@@ -5,6 +5,8 @@
         <group>
             <file>file:/home/juan/NetBeansProjects/JDBCTutorial/src/com/oracle/tutorial/jdbc/CoffeesTable.java</file>
             <file>file:/home/juan/NetBeansProjects/JDBCTutorial/src/com/oracle/tutorial/jdbc/JDBCTutorialUtilities.java</file>
+            <file>file:/home/juan/NetBeansProjects/JDBCTutorial/properties/mariadb-sample-properties.xml</file>
+            <file>file:/home/juan/NetBeansProjects/JDBCTutorial/src/com/oracle/tutorial/jdbc/SuppliersTable.java</file>
         </group>
     </open-files>
 </project-private>
