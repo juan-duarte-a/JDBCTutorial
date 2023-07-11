@@ -132,7 +132,7 @@ public class ProductInformationTable {
     public void dropTable() throws SQLException {
         
         try (Statement stmt = con.createStatement()) {
-            if (dbms.equals("mysql") || dbms.startsWith("mariadb")) {
+            if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS PRODUCT_INFORMATION");
             } else if (dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE PRODUCT_INFORMATION");

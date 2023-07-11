@@ -30,6 +30,7 @@
  */
 package com.oracle.tutorial.jdbc;
 
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -66,7 +67,8 @@ public class JDBCTutorialUtilities {
     private int portNumber;
     private Properties prop;
     
-    private MariaDbPoolDataSource poolDataSource;
+    private MariaDbPoolDataSource mariaDbPoolDataSource;
+    private MysqlConnectionPoolDataSource mysqlConnectionPoolDataSource;
 
     public static void initializeTables(Connection con, String dbNameArg, String dbmsArg)
             throws SQLException {
@@ -283,6 +285,13 @@ public class JDBCTutorialUtilities {
                 conn = DriverManager.getConnection(currentUrlString, connectionProps);
                 this.urlString = currentUrlString + this.dbName;
                 break;
+            case "mysql.pooled":
+                currentUrlString = "jdbc:mysql://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = getMySQLPooledConnection();
+                this.urlString = currentUrlString + this.dbName;
+                System.out.println("MySQL pooled connection obtained");
+                break;
             case "mariadb":
                 currentUrlString = "jdbc:mariadb://" + this.serverName
                         + ":" + this.portNumber + "/";
@@ -294,6 +303,7 @@ public class JDBCTutorialUtilities {
                         + ":" + this.portNumber + "/";
                 conn = getMariaDBPooledConnection();
                 this.urlString = currentUrlString + this.dbName;
+                System.out.println("MariaDB pooled connection obtained");
                 break;
             case "derby":
                 this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
@@ -338,23 +348,32 @@ public class JDBCTutorialUtilities {
     }
     
     public Connection getMariaDBPooledConnection() throws SQLException {
-        if (poolDataSource == null) {
+        if (mariaDbPoolDataSource == null) {
             String url = "jdbc:mariadb://" + serverName + ":" + portNumber + "/"
                     + "?user=" + userName + "&password=" + password;
-            poolDataSource = new MariaDbPoolDataSource(url);
+            mariaDbPoolDataSource = new MariaDbPoolDataSource(url);
         }
+        PooledConnection pooledConnection = mariaDbPoolDataSource.getPooledConnection();
         
-        PooledConnection pooledConnection =
-                poolDataSource.getPooledConnection();
+        return pooledConnection.getConnection();
+    }
+    
+    public Connection getMySQLPooledConnection() throws SQLException {
+        if (mysqlConnectionPoolDataSource == null) {
+            String url = "jdbc:mysql://" + serverName + ":" + portNumber + "/";
+            mysqlConnectionPoolDataSource = new MysqlConnectionPoolDataSource();
+            mysqlConnectionPoolDataSource.setURL(url);
+            mysqlConnectionPoolDataSource.setUser(userName);
+            mysqlConnectionPoolDataSource.setPassword(password);
+        }
+        PooledConnection pooledConnection = mysqlConnectionPoolDataSource.getPooledConnection();
         
-        Connection connection = pooledConnection.getConnection();
-        
-        return connection;
+        return pooledConnection.getConnection();
     }
 
     public static void createDatabase(Connection connArg, String dbNameArg, String dbmsArg) {
 
-        if (dbmsArg.equals("mysql") || dbmsArg.startsWith("mariadb")) {
+        if (dbmsArg.startsWith("mysql") || dbmsArg.startsWith("mariadb")) {
             try {
                 Statement s = connArg.createStatement();
                 String newDatabaseString
@@ -362,6 +381,8 @@ public class JDBCTutorialUtilities {
                 // String newDatabaseString = "CREATE DATABASE " + dbName;
                 s.executeUpdate(newDatabaseString);
 
+                getWarningsFromStatement(s);
+                
                 System.out.println("Created database " + dbNameArg);
             } catch (SQLException e) {
                 printSQLException(e);
