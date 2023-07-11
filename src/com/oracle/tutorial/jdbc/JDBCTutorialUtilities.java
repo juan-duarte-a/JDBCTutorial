@@ -42,12 +42,14 @@ import java.sql.BatchUpdateException;
 import java.sql.DatabaseMetaData;
 import java.sql.RowIdLifetime;
 import java.sql.SQLWarning;
+import javax.sql.PooledConnection;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.mariadb.jdbc.MariaDbPoolDataSource;
 import org.w3c.dom.Document;
 
 public class JDBCTutorialUtilities {
@@ -63,6 +65,8 @@ public class JDBCTutorialUtilities {
     private String serverName;
     private int portNumber;
     private Properties prop;
+    
+    private MariaDbPoolDataSource poolDataSource;
 
     public static void initializeTables(Connection con, String dbNameArg, String dbmsArg)
             throws SQLException {
@@ -285,6 +289,12 @@ public class JDBCTutorialUtilities {
                 conn = DriverManager.getConnection(currentUrlString, connectionProps);
                 this.urlString = currentUrlString + this.dbName;
                 break;
+            case "mariadb.pooled":
+                currentUrlString = "jdbc:mariadb://" + this.serverName
+                        + ":" + this.portNumber + "/";
+                conn = getMariaDBPooledConnection();
+                this.urlString = currentUrlString + this.dbName;
+                break;
             case "derby":
                 this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
                 conn = DriverManager.getConnection(this.urlString + ";create=true", connectionProps);
@@ -326,10 +336,25 @@ public class JDBCTutorialUtilities {
         }
         return conn;
     }
+    
+    public Connection getMariaDBPooledConnection() throws SQLException {
+        if (poolDataSource == null) {
+            String url = "jdbc:mariadb://" + serverName + ":" + portNumber + "/"
+                    + "?user=" + userName + "&password=" + password;
+            poolDataSource = new MariaDbPoolDataSource(url);
+        }
+        
+        PooledConnection pooledConnection =
+                poolDataSource.getPooledConnection();
+        
+        Connection connection = pooledConnection.getConnection();
+        
+        return connection;
+    }
 
     public static void createDatabase(Connection connArg, String dbNameArg, String dbmsArg) {
 
-        if (dbmsArg.equals("mysql") || dbmsArg.equals("mariadb")) {
+        if (dbmsArg.equals("mysql") || dbmsArg.startsWith("mariadb")) {
             try {
                 Statement s = connArg.createStatement();
                 String newDatabaseString

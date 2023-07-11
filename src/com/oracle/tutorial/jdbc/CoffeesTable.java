@@ -291,7 +291,7 @@ public class CoffeesTable {
 
     public void dropTable() throws SQLException {
         try (Statement stmt = con.createStatement()) {
-            if (this.dbms.equals("mysql") || this.dbms.equals("mariadb")) {
+            if (dbms.equals("mysql") || dbms.startsWith("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS COFFEES");
             } else if (this.dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE COFFEES");

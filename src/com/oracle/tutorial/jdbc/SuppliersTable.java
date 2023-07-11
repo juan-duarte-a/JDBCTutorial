@@ -66,7 +66,7 @@ public class SuppliersTable {
 
     public void dropTable() throws SQLException {        
         try (Statement stmt = con.createStatement()) {
-            if (dbms.equals("mysql") || dbms.equals("mariadb")) {
+            if (dbms.equals("mysql") || dbms.startsWith("mariadb")) {
                 System.out.println("Dropping table SUPPLIERS from " + dbms);
                 stmt.executeUpdate("DROP TABLE IF EXISTS SUPPLIERS");
             } else if (dbms.equals("derby")) {
