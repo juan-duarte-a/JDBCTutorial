@@ -31,18 +31,17 @@
 
 package com.oracle.tutorial.jdbc;
 
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SuppliersTable {
 
-    private String dbName;
-    private Connection con;
-    private String dbms;
+    private final String dbName;
+    private final Connection con;
+    private final String dbms;
 
     public SuppliersTable(Connection connArg, String dbNameArg, String dbmsArg) {
         super();
@@ -67,11 +66,22 @@ public class SuppliersTable {
 
     public void dropTable() throws SQLException {        
         try (Statement stmt = con.createStatement()) {
-            if (this.dbms.equals("mysql")) {
-                System.out.println("Dropping table SUPPLIERS from MySQL");
+            if (dbms.equals("mysql") || dbms.equals("mariadb")) {
+                System.out.println("Dropping table SUPPLIERS from " + dbms);
                 stmt.executeUpdate("DROP TABLE IF EXISTS SUPPLIERS");
-            } else if (this.dbms.equals("derby")) {
+            } else if (dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE SUPPLIERS");
+            }
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
+    }
+
+    public void deleteRows() throws SQLException {        
+        try (Statement stmt = con.createStatement()) {
+            if (dbms.equals("mysql") || dbms.equals("mariadb")) {
+                System.out.println("Deleting table rows from SUPPLIERS in " + dbms);
+                stmt.executeUpdate("DELETE FROM SUPPLIERS");
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
@@ -135,15 +145,15 @@ public class SuppliersTable {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
         Connection myConnection = null;
 
-        if (args[0] == null) {
+        if (args.length == 0) {
             System.err.println("Properties file not specified at command line");
             return;
         } else {
             try {
                 myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
+                e.printStackTrace(System.err);
                 return;
             }
         }
@@ -155,10 +165,21 @@ public class SuppliersTable {
 //
 //            JDBCTutorialUtilities.initializeTables(myConnection, myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
             
-            System.out.println("\nContents of SUPPLIERS table:");
-            
-            SuppliersTable.viewTable(myConnection);
+            SuppliersTable mySuppliersTable = new SuppliersTable(myConnection, 
+                    myJDBCTutorialUtilities.dbName, myJDBCTutorialUtilities.dbms);
 
+            myConnection.setCatalog(mySuppliersTable.dbName);
+            
+//            mySuppliersTable.dropTable();
+//            mySuppliersTable.createTable();
+//            mySuppliersTable.deleteRows();
+//            mySuppliersTable.populateTable();
+            
+            System.out.println("\nContents of SUPPLIERS table:");
+            System.out.println();
+            SuppliersTable.viewTable(myConnection);
+            System.out.println();
+            
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         } finally {
