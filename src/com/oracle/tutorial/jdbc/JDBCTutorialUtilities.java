@@ -381,7 +381,7 @@ public class JDBCTutorialUtilities {
                 // String newDatabaseString = "CREATE DATABASE " + dbName;
                 s.executeUpdate(newDatabaseString);
 
-                getWarningsFromStatement(s);
+                JDBCTutorialUtilities.getWarningsFromStatement(s);
                 
                 System.out.println("Created database " + dbNameArg);
             } catch (SQLException e) {
