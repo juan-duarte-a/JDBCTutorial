@@ -125,7 +125,15 @@ public class CoffeesTable {
     public void modifyPrices(float percentage) throws SQLException {
         try (Statement stmt =
             con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+            JDBCTutorialUtilities.getWarningsFromStatement(stmt);
+            
             ResultSet uprs = stmt.executeQuery("SELECT * FROM COFFEES");
+            JDBCTutorialUtilities.getWarningsFromResultSet(uprs);
+            System.out.println("ResulSet type: " + uprs.getType());
+            System.out.println("TYPE_SCROLL_SENSITIVE: " + ResultSet.TYPE_SCROLL_SENSITIVE);
+            System.out.println("ResulSet concurrency: " + uprs.getConcurrency());
+            System.out.println("CONCUR_UPDATABLE: " + ResultSet.CONCUR_UPDATABLE);
+            
             while (uprs.next()) {
                 float f = uprs.getFloat("PRICE");
                 uprs.updateFloat("PRICE", f * percentage);
@@ -152,7 +160,11 @@ public class CoffeesTable {
             if (!getPrice.execute()) {
                 System.out.println("Could not find entry for coffee named " + coffeeName);
             } else {
+                JDBCTutorialUtilities.getWarningsFromStatement(getPrice);
+                
                 rs = getPrice.getResultSet();
+                JDBCTutorialUtilities.getWarningsFromResultSet(rs);
+                
                 rs.first();
                 float oldPrice = rs.getFloat("PRICE");
                 float newPrice = oldPrice + (oldPrice * priceModifier);
@@ -164,6 +176,7 @@ public class CoffeesTable {
                 updatePrice.setFloat(1, newPrice);
                 updatePrice.setString(2, coffeeName);
                 updatePrice.executeUpdate();
+                JDBCTutorialUtilities.getWarningsFromStatement(updatePrice);
                 
                 System.out.println("\nCOFFEES table after update:");
                 CoffeesTable.viewTable(con);
@@ -236,6 +249,8 @@ public class CoffeesTable {
         
         try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
+            JDBCTutorialUtilities.getWarningsFromStatement(stmt);
+            JDBCTutorialUtilities.getWarningsFromResultSet(rs);
             
             while (rs.next()) {
                 String coffeeName = rs.getString("COF_NAME");
@@ -293,6 +308,7 @@ public class CoffeesTable {
         try (Statement stmt = con.createStatement()) {
             if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS COFFEES");
+                JDBCTutorialUtilities.getWarningsFromStatement(stmt);
             } else if (this.dbms.equals("derby")) {
                 stmt.executeUpdate("DROP TABLE COFFEES");
             }
@@ -369,6 +385,7 @@ public class CoffeesTable {
             System.out.println("\nPerforming batch updates; adding new coffees");
             myCoffeeTable.batchUpdate();
             CoffeesTable.viewTable(myConnection);
+            System.out.println("");
 
 //            System.out.println("\nDropping Coffee and Suplliers table:");
 //            

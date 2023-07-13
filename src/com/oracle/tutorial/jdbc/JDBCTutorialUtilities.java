@@ -312,7 +312,26 @@ public class JDBCTutorialUtilities {
             default:
                 break;
         }
-        System.out.println("Connected to database");
+        
+        if (conn != null) {
+            System.out.println("Connected to database");
+        
+            DatabaseMetaData dbMetaData = conn.getMetaData();
+            System.out.println("\nDBMS supports TYPE_FORWARD_ONLY ResulSet: " 
+                    + dbMetaData.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY));
+            System.out.println("DBMS supports TYPE_SCROLL_INSENSITIVE ResulSet: " 
+                    + dbMetaData.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE));
+            System.out.println("DBMS supports TYPE_SCROLL_SENSITIVE ResulSet: " 
+                    + dbMetaData.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE));
+            System.out.println("DBMS supports CONCUR_READ_ONLY in TYPE_SCROLL_INSENSITIVE ResulSet: " 
+                    + dbMetaData.supportsResultSetConcurrency(
+                            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
+            System.out.println("DBMS supports CONCUR_UPDATABLE in TYPE_SCROLL_INSENSITIVE ResulSet: " 
+                    + dbMetaData.supportsResultSetConcurrency(
+                            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE));
+            JDBCTutorialUtilities.cursorHoldabilitySupport(conn);
+        }
+        
         return conn;
     }
 
@@ -371,30 +390,29 @@ public class JDBCTutorialUtilities {
         return pooledConnection.getConnection();
     }
 
-    public static void createDatabase(Connection connArg, String dbNameArg, String dbmsArg) {
+    public static void createDatabase(Connection conn, String dbName, String dbms) {
 
-        if (dbmsArg.startsWith("mysql") || dbmsArg.startsWith("mariadb")) {
+        if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
             try {
-                Statement s = connArg.createStatement();
+                Statement s = conn.createStatement();
                 String newDatabaseString
-                        = "CREATE DATABASE IF NOT EXISTS " + dbNameArg;
+                        = "CREATE DATABASE IF NOT EXISTS " + dbName;
                 // String newDatabaseString = "CREATE DATABASE " + dbName;
                 s.executeUpdate(newDatabaseString);
-
                 JDBCTutorialUtilities.getWarningsFromStatement(s);
                 
-                System.out.println("Created database " + dbNameArg);
+                System.out.println("Created database " + dbName);
             } catch (SQLException e) {
                 printSQLException(e);
             }
         }
     }
 
-    public static void closeConnection(Connection connArg) {
+    public static void closeConnection(Connection conn) {
         System.out.println("Releasing all open resources ...");
         try {
-            if (connArg != null) {
-                connArg.close();
+            if (conn != null) {
+                conn.close();
             }
         } catch (SQLException sqle) {
             printSQLException(sqle);
