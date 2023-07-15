@@ -39,6 +39,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.util.Arrays;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,6 +130,7 @@ public class CoffeesTable {
             
             ResultSet uprs = stmt.executeQuery("SELECT * FROM COFFEES");
             JDBCTutorialUtilities.getWarningsFromResultSet(uprs);
+            
             System.out.println("ResulSet type: " + uprs.getType());
             System.out.println("TYPE_SCROLL_SENSITIVE: " + ResultSet.TYPE_SCROLL_SENSITIVE);
             System.out.println("ResulSet concurrency: " + uprs.getConcurrency());
@@ -139,6 +141,14 @@ public class CoffeesTable {
                 uprs.updateFloat("PRICE", f * percentage);
                 uprs.updateRow();
             }
+            
+            System.out.println("Previous position: " + uprs.previous());
+            System.out.println("Previous position: " + uprs.previous());
+            System.out.println("Absolute 2 position: " + uprs.absolute(2));
+            System.out.println("First position: " + uprs.first());
+            System.out.println("Previous position: " + uprs.previous());
+            System.out.println("Last position: " + uprs.last());
+            System.out.println("Next position: " + uprs.next());
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }
@@ -213,8 +223,9 @@ public class CoffeesTable {
             uprs.updateInt("TOTAL", total);
 
             uprs.insertRow();
-            uprs.beforeFirst();
-
+            uprs.moveToCurrentRow();
+            
+            JDBCTutorialUtilities.getWarningsFromResultSet(uprs);
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }
@@ -234,6 +245,7 @@ public class CoffeesTable {
                     + "VALUES('Hazelnut_decaf', 49, 10.99, 0, 0)");
 
             int[] updateCounts = stmt.executeBatch();
+            System.out.println("Execute batch: " + Arrays.toString(updateCounts) + "\n");
             con.commit();
         } catch (BatchUpdateException b) {
             JDBCTutorialUtilities.printBatchUpdateException(b);
