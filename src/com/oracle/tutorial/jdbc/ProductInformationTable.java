@@ -118,10 +118,11 @@ public class ProductInformationTable {
     }
     
     public void createTable() throws SQLException {
-        String createString = "create table PRODUCT_INFORMATION" + 
-        "    (COF_NAME varchar(32) NOT NULL," + 
-        "    INFO clob NOT NULL," + 
-        "    FOREIGN KEY (COF_NAME) REFERENCES COFFEES (COF_NAME))";
+        String createString = 
+                "create table PRODUCT_INFORMATION " 
+                + "(COF_NAME varchar(32) NOT NULL, " 
+                + "INFO blob NOT NULL, " 
+                + "FOREIGN KEY (COF_NAME) REFERENCES COFFEES (COF_NAME))";
         try (Statement stmt = con.createStatement()) {
             stmt.executeUpdate(createString);
         } catch (SQLException e) {

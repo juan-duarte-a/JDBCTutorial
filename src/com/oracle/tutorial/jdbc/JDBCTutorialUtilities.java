@@ -43,6 +43,8 @@ import java.sql.BatchUpdateException;
 import java.sql.DatabaseMetaData;
 import java.sql.RowIdLifetime;
 import java.sql.SQLWarning;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sql.PooledConnection;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -70,23 +72,26 @@ public class JDBCTutorialUtilities {
     private MariaDbPoolDataSource mariaDbPoolDataSource;
     private MysqlConnectionPoolDataSource mysqlConnectionPoolDataSource;
 
-    public static void initializeTables(Connection con, String dbNameArg, String dbmsArg)
+    public static void initializeTables(Connection conn, String dbNameArg, String dbmsArg)
             throws SQLException {
         SuppliersTable mySuppliersTable
-                = new SuppliersTable(con, dbNameArg, dbmsArg);
+                = new SuppliersTable(conn, dbNameArg, dbmsArg);
         CoffeesTable myCoffeeTable
-                = new CoffeesTable(con, dbNameArg, dbmsArg);
+                = new CoffeesTable(conn, dbNameArg, dbmsArg);
         RSSFeedsTable myRSSFeedsTable
-                = new RSSFeedsTable(con, dbNameArg, dbmsArg);
+                = new RSSFeedsTable(conn, dbNameArg, dbmsArg);
         ProductInformationTable myPIT
-                = new ProductInformationTable(con, dbNameArg, dbmsArg);
+                = new ProductInformationTable(conn, dbNameArg, dbmsArg);
+
+        System.out.println("\nDropping COFFEE_DESCRIPTIONS, COF_INVENTORY, and MERCH_INVENTORY tables");
+        dropOtherTables(conn);
 
         System.out.println("\nDropping exisiting PRODUCT_INFORMATION, COFFEES and SUPPLIERS tables");
         myPIT.dropTable();
         myRSSFeedsTable.dropTable();
         myCoffeeTable.dropTable();
         mySuppliersTable.dropTable();
-
+        
         System.out.println("\nCreating and populating SUPPLIERS table...");
 
         System.out.println("\nCreating SUPPLIERS table");
@@ -103,6 +108,59 @@ public class JDBCTutorialUtilities {
 
         System.out.println("\nCreating RSS_FEEDS table...");
         myRSSFeedsTable.createTable();
+
+        System.out.println("\nCreating PRODUCT_INFORMATION table...");
+        myPIT.createTable();
+        
+        System.out.println("\nCreating COFFEE_DESCRIPTIONS, COF_INVENTORY, and MERCH_INVENTORY tables...");
+        createOtherTables(conn);
+    }
+    
+    public static void createOtherTables(Connection conn) {
+        String createCoffeesDescriptionsTableSQL = 
+                "create table COFFEE_DESCRIPTIONS (" 
+                + "COF_NAME varchar(32) NOT NULL, " 
+                + "COF_DESC blob NOT NULL, " 
+                + "PRIMARY KEY (COF_NAME), " 
+                + "FOREIGN KEY (COF_NAME) REFERENCES COFFEES (COF_NAME))";
+        
+        String createCofInventoryTableSQL =
+                "create table COF_INVENTORY ("
+                + "WAREHOUSE_ID integer NOT NULL, "
+                + "COF_NAME varchar(32) NOT NULL, "
+                + "SUP_ID int NOT NULL, "
+                + "QUAN int NOT NULL, "
+                + "DATE_VAL timestamp, "
+                + "FOREIGN KEY (COF_NAME) REFERENCES COFFEES (COF_NAME), "
+                + "FOREIGN KEY (SUP_ID) REFERENCES SUPPLIERS (SUP_ID))";
+        
+        String createMerchInventoryTableSQL =
+                "create table MERCH_INVENTORY ("
+                + "ITEM_ID integer NOT NULL, "
+                + "ITEM_NAME varchar(20), "
+                + "SUP_ID int, QUAN int, "
+                + "DATE_VAL timestamp, "
+                + "PRIMARY KEY (ITEM_ID), "
+                + "FOREIGN KEY (SUP_ID) REFERENCES SUPPLIERS (SUP_ID))";
+        
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createCoffeesDescriptionsTableSQL);
+            stmt.executeUpdate(createCofInventoryTableSQL);
+            stmt.executeUpdate(createMerchInventoryTableSQL);
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
+    }
+    
+    public static void dropOtherTables(Connection conn) {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.addBatch("DROP TABLE IF EXISTS MERCH_INVENTORY");
+            stmt.addBatch("DROP TABLE IF EXISTS COF_INVENTORY");
+            stmt.addBatch("DROP TABLE IF EXISTS COFFEE_DESCRIPTIONS");
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
     }
 
     public static void rowIdLifetime(Connection conn) throws SQLException {

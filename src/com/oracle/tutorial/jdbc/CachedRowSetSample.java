@@ -31,23 +31,17 @@
 
 package com.oracle.tutorial.jdbc;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.sql.Statement;
-
 import java.sql.Timestamp;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
@@ -57,24 +51,21 @@ import javax.sql.rowset.spi.SyncResolver;
 
 public class CachedRowSetSample {
 
-    private String dbName;
-    private Connection con;
-    private String dbms;
-    private JDBCTutorialUtilities settings;
+    private final String dbName;
+    private final Connection conn;
+    private final JDBCTutorialUtilities settings;
 
 
-    public CachedRowSetSample(Connection connArg,
-                                                        JDBCTutorialUtilities settingsArg) {
+    public CachedRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
         super();
-        this.con = connArg;
+        this.conn = connArg;
         this.dbName = settingsArg.dbName;
-        this.dbms = settingsArg.dbms;
         this.settings = settingsArg;
     }
     
     public void testPaging() throws SQLException, MalformedURLException {
 
-        this.con.setAutoCommit(false);
+        this.conn.setAutoCommit(false);
         RowSetFactory factory = RowSetProvider.newFactory();
         CachedRowSet crs = factory.createCachedRowSet();
 
@@ -108,7 +99,7 @@ public class CachedRowSetSample {
                         crs.updateInt("QUAN", currentQuantity + 1);
                         crs.updateRow();
                         // Syncing the row back to the DB
-                        crs.acceptChanges(con);
+                        crs.acceptChanges(conn);
                     }
                 } // End of inner while
                 i++;
@@ -122,7 +113,7 @@ public class CachedRowSetSample {
 
             int newItemId = 123456;
 
-            if (this.doesItemIdExist(newItemId)) {
+            if (doesItemIdExist(newItemId)) {
                 System.out.println("Item ID " + newItemId + " already exists");
             } else {
                 crs.previousPage();
@@ -136,13 +127,16 @@ public class CachedRowSetSample {
                 timeStamp.set(2006, 4, 1);
                 crs.updateTimestamp("DATE_VAL", new Timestamp(timeStamp.getTimeInMillis()));
                 crs.insertRow();
+                
                 crs.moveToCurrentRow();
+                JDBCTutorialUtilities.getWarningsFromResultSet(crs);
                 
                 // Syncing the new row back to the database.
                 System.out.println("About to add a new row...");
-                crs.acceptChanges(con);
+                crs.acceptChanges(conn);
                 System.out.println("Added a row...");
-                this.viewTable(con);
+                JDBCTutorialUtilities.getWarningsFromResultSet(crs);
+                CachedRowSetSample.viewTable(conn);
             }
         } catch (SyncProviderException spe) {
 
@@ -181,23 +175,23 @@ public class CachedRowSetSample {
             JDBCTutorialUtilities.printSQLException(sqle);
         } finally {
 	    if (crs != null) crs.close();
-            this.con.setAutoCommit(true);
+            this.conn.setAutoCommit(true);
         }
-
     }
 
     private boolean doesItemIdExist(int id) throws SQLException {
         String query = "select ITEM_ID from MERCH_INVENTORY where ITEM_ID = ?";
-        try (PreparedStatement ps = con.prepareStatement(query)){
+        try (PreparedStatement ps = conn.prepareStatement(query)){
             ps.setInt(1, id);
-            if (ps.execute(query)) {
+            if (ps.executeQuery().next()) {
+                System.out.println("\nItem " + id + " does exist\n");
                 return true;
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         } 
+        System.out.println("\nItem " + id + " does not exist\n");
         return false;
-
     }
 
     public static void viewTable(Connection con) throws SQLException {
@@ -205,9 +199,9 @@ public class CachedRowSetSample {
         try (Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                System.out.println("Found item " + rs.getInt("ITEM_ID") + ": " +
-                                                     rs.getString("ITEM_NAME") + " (" +
-                                                     rs.getInt("QUAN") + ")");
+                System.out.println("Found item " + rs.getInt("ITEM_ID") + ": " 
+                        + rs.getString("ITEM_NAME") + " (" 
+                        + rs.getInt("QUAN") + ")");
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
@@ -218,15 +212,15 @@ public class CachedRowSetSample {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
         Connection myConnection = null;
 
-        if (args[0] == null) {
+        if (args.length == 0) {
             System.err.println("Properties file not specified at command line");
             return;
         } else {
             try {
                 myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
+                e.printStackTrace(System.err);
                 return;
             }
         }
@@ -234,28 +228,19 @@ public class CachedRowSetSample {
         try {
             myConnection = myJDBCTutorialUtilities.getConnection();
 
-            if (myJDBCTutorialUtilities == null) {
-                System.out.println("myJDBCTU is null");
-            }
-
-            if (myConnection == null) {
-                System.out.println("myConnection is null");
-            }
-
             CachedRowSetSample myCachedRowSetSample =
                 new CachedRowSetSample(myConnection, myJDBCTutorialUtilities);
-            myCachedRowSetSample.viewTable(myConnection);
+            
+            myConnection.setCatalog(myCachedRowSetSample.dbName);
+            
+            CachedRowSetSample.viewTable(myConnection);
             myCachedRowSetSample.testPaging();
-
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } catch (Exception ex) {
+        } catch (MalformedURLException ex) {
             System.out.println("Unexpected exception");
-            ex.printStackTrace();
-        }
-
-        finally {
+            ex.printStackTrace(System.err);
+        } finally {
             JDBCTutorialUtilities.closeConnection(myConnection);
         }
     }

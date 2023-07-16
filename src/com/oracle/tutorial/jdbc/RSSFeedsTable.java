@@ -74,12 +74,12 @@ public class RSSFeedsTable {
 
     public void createTable() throws SQLException {
         try (Statement stmt = con.createStatement()){
-            if (this.dbms.equals("derby")) {
+            if (dbms.equals("derby")) {
                 String createString =
                     "create table RSS_FEEDS (RSS_NAME varchar(32) NOT NULL," +
                     "    RSS_FEED_XML xml NOT NULL, PRIMARY KEY (RSS_NAME))";
                 stmt.executeUpdate(createString);
-            } else if (this.dbms.equals("mysql")) {
+            } else if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
                 String createString =
                     "create table RSS_FEEDS (RSS_NAME varchar(32) NOT NULL," +
                     "    RSS_FEED_XML longtext NOT NULL, PRIMARY KEY (RSS_NAME))";
