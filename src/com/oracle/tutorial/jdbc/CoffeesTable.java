@@ -317,6 +317,9 @@ public class CoffeesTable {
     }
 
     public void dropTable() throws SQLException {
+        JDBCTutorialUtilities.dropOtherTables(con);
+        ProductInformationTable.dropTable(con, dbms);
+        
         try (Statement stmt = con.createStatement()) {
             if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS COFFEES");

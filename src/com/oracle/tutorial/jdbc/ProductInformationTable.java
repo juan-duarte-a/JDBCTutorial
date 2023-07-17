@@ -143,6 +143,19 @@ public class ProductInformationTable {
         }
     }
     
+    public static void dropTable(Connection conn, String dbms) throws SQLException {
+        
+        try (Statement stmt = conn.createStatement()) {
+            if (dbms.startsWith("mysql") || dbms.startsWith("mariadb")) {
+                stmt.executeUpdate("DROP TABLE IF EXISTS PRODUCT_INFORMATION");
+            } else if (dbms.equals("derby")) {
+                stmt.executeUpdate("DROP TABLE PRODUCT_INFORMATION");
+            }
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
+    }
+    
     public static void main(String[] args) {
 
         JDBCTutorialUtilities myJDBCTutorialUtilities;
