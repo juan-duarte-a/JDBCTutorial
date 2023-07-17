@@ -31,38 +31,38 @@
 
 package com.oracle.tutorial.jdbc;
 
-import javax.sql.rowset.JdbcRowSet;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.sql.Statement;
-
 import javax.sql.RowSet;
 import javax.sql.rowset.JdbcRowSet;
 
 public class JdbcRowSetSample {
 
-    private String dbName;
-    private Connection con;
-    private String dbms;
-    private JDBCTutorialUtilities settings;
+    private final String dbName;
+    private final Connection con;
+    private final JDBCTutorialUtilities settings;
 
-    public JdbcRowSetSample(Connection connArg,
-                                                    JDBCTutorialUtilities settingsArg) {
-        super();
+    public JdbcRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
         this.con = connArg;
         this.dbName = settingsArg.dbName;
-        this.dbms = settingsArg.dbms;
         this.settings = settingsArg;
     }
 
     public void testJdbcRowSet() throws SQLException {
 
         RowSetFactory factory = RowSetProvider.newFactory();
+        
+        try (Statement smnt = con.createStatement()) {
+            System.out.println("\nRows deleted: " + smnt.executeUpdate(
+                    "delete from COFFEES where COF_NAME = 'HouseBlend'"));
+            JDBCTutorialUtilities.getWarningsFromStatement(smnt);
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
 
         try (JdbcRowSet jdbcRs = factory.createJdbcRowSet()) {
             jdbcRs.setUrl(this.settings.urlString);
@@ -101,13 +101,8 @@ public class JdbcRowSetSample {
 
             System.out.println("\nAfter deleting last row:");
             CoffeesTable.viewTable(con);
-
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        }
-        finally {
-            this.con.setAutoCommit(false);
         }
     }
     
@@ -119,9 +114,8 @@ public class JdbcRowSetSample {
             float price = rs.getFloat(3);
             int sales = rs.getInt(4);
             int total = rs.getInt(5);
-            System.out.println(coffeeName + ", " + supplierID + ", " + price +
-                                                 ", " + sales + ", " + total);
-            
+            System.out.println(coffeeName + ", " + supplierID + ", " + price 
+                    + ", " + sales + ", " + total);
         }
     }
 
@@ -129,15 +123,15 @@ public class JdbcRowSetSample {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
         Connection myConnection = null;
 
-        if (args[0] == null) {
+        if (args.length == 0) {
             System.err.println("Properties file not specified at command line");
             return;
         } else {
             try {
                 myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
+                e.printStackTrace(System.err);
                 return;
             }
         }
@@ -147,15 +141,15 @@ public class JdbcRowSetSample {
 
             JdbcRowSetSample myJdbcRowSetSample =
                 new JdbcRowSetSample(myConnection, myJDBCTutorialUtilities);
+            
+            myConnection.setCatalog(myJdbcRowSetSample.dbName);
+            
             myJdbcRowSetSample.testJdbcRowSet();
-
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         } finally {
             JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
 
 }

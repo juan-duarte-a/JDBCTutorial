@@ -158,8 +158,8 @@ public class CoffeesTable {
             throws SQLException {
         con.setAutoCommit(false);
         ResultSet rs;
-        String priceQuery = "SELECT COF_NAME, PRICE FROM COFFEES " + "WHERE COF_NAME = ?";
-        String updateQuery = "UPDATE COFFEES SET PRICE = ? " + "WHERE COF_NAME = ?";
+        String priceQuery = "SELECT COF_NAME, PRICE FROM COFFEES WHERE COF_NAME = ?";
+        String updateQuery = "UPDATE COFFEES SET PRICE = ? WHERE COF_NAME = ?";
         
         try (PreparedStatement getPrice = con.prepareStatement(priceQuery, 
                 ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
