@@ -6,8 +6,8 @@
     <entry key="driver">org.mariadb.jdbc.Driver</entry>
     <entry key="database_name">testdb</entry>
     <entry key="user_name">juan</entry>
-    <entry key="password">*321ewqDSA/</entry>
-    <entry key="server_name">localhost</entry>
+    <entry key="password">*321ewqDSA</entry>
+    <entry key="server_name">207.246.66.27</entry>
     <entry key="port_number">3306</entry>
 
 
