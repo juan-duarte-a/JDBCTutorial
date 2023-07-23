@@ -99,6 +99,12 @@ public class SuppliersTable {
             stmt.executeUpdate("insert into SUPPLIERS " 
                     + "values(150, 'The High Ground', '100 Coffee Lane', " 
                     + "'Meadows', 'CA', '93966')");
+            stmt.executeUpdate("insert into SUPPLIERS "
+                    + "values(456, 'Restaurant Supplies, Inc.', '200 Magnolia Street', "
+                    + "'Meadows', 'CA', '93966')");
+            stmt.executeUpdate("insert into SUPPLIERS "
+                    + "values(927, 'Professional Kitchen', '300 Daisy Avenue', "
+                    + "'Groundsville', 'CA', '95199')");
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }

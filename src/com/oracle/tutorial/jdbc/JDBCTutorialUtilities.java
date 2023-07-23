@@ -114,6 +114,7 @@ public class JDBCTutorialUtilities {
         
         System.out.println("\nCreating COFFEE_DESCRIPTIONS, COF_INVENTORY, and MERCH_INVENTORY tables...");
         createOtherTables(conn);
+        populateOtherTables(conn);
     }
     
     public static void createOtherTables(Connection conn) {
@@ -158,6 +159,34 @@ public class JDBCTutorialUtilities {
             stmt.addBatch("DROP TABLE IF EXISTS COF_INVENTORY");
             stmt.addBatch("DROP TABLE IF EXISTS COFFEE_DESCRIPTIONS");
             stmt.executeBatch();
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
+    }
+    
+    public static void populateOtherTables(Connection conn) {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.addBatch("insert into COF_INVENTORY values(1234, 'Colombian',       101, 0, '2006-04-01')");
+            stmt.addBatch("insert into COF_INVENTORY values(1234, 'French_Roast',    49,  0, '2006-04-01')");
+            stmt.addBatch("insert into COF_INVENTORY values(1234, 'Espresso',        150, 0, '2006-04-01')");
+            stmt.addBatch("insert into COF_INVENTORY values(1234, 'Colombian_Decaf', 101, 0, '2006-04-01')");
+            
+            stmt.addBatch("insert into MERCH_INVENTORY values(00001234, 'Cup_Large', 456, 28, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00001235, 'Cup_Small', 456, 36, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00001236, 'Saucer', 456, 64, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00001287, 'Carafe', 456, 12, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00006931, 'Carafe', 927, 3, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00006935, 'PotHolder', 927, 88, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00006977, 'Napkin', 927, 108, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00006979, 'Towel', 927, 24, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00004488, 'CofMaker', 456, 5, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00004490, 'CofGrinder', 456, 9, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00004495, 'EspMaker', 456, 4, '2006-04-01')");
+            stmt.addBatch("insert into MERCH_INVENTORY values(00006914, 'Cookbook', 927, 12, '2006-04-01')");
+            
+            stmt.executeBatch();
+
+            JDBCTutorialUtilities.getWarningsFromStatement(stmt);
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }

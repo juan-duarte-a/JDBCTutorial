@@ -69,16 +69,18 @@ public class CachedRowSetSample {
         RowSetFactory factory = RowSetProvider.newFactory();
         CachedRowSet crs = factory.createCachedRowSet();
 
-
         try {
             crs.setUsername(settings.userName);
             crs.setPassword(settings.password);
             crs.setUrl(settings.urlString);
             crs.setCommand("select * from MERCH_INVENTORY");
 
+            int[] keys = {1};
+            crs.setKeyColumns(keys);
+            
             // Setting the page size to 4, such that we
             // get the data in chunks of 4 rows @ a time.
-            crs.setPageSize(100);
+            crs.setPageSize(4);
 
             // Now get the first set of data
             crs.execute();
@@ -89,23 +91,23 @@ public class CachedRowSetSample {
 
             int i = 1;
             do {
-                System.out.println("Page number: " + i);
+                System.out.println("\nPage number: " + i);
+                
                 while (crs.next()) {
-                    System.out.println("Found item " + crs.getInt("ITEM_ID") + ": " +
-                                                         crs.getString("ITEM_NAME"));
+                    System.out.println("Found item " + crs.getInt("ITEM_ID") + ": " 
+                            + crs.getString("ITEM_NAME"));
                     if (crs.getInt("ITEM_ID") == 1235) {
-                        int currentQuantity = crs.getInt("QUAN") + 1;
-                        System.out.println("Updating quantity to " + currentQuantity);
-                        crs.updateInt("QUAN", currentQuantity + 1);
+                        int currentQuantity = crs.getInt("QUAN");
+                        System.out.println("Updating quantity to " + ++currentQuantity);
+                        crs.updateInt("QUAN", currentQuantity);
                         crs.updateRow();
                         // Syncing the row back to the DB
                         crs.acceptChanges(conn);
                     }
-                } // End of inner while
+                }
+                
                 i++;
             } while (crs.nextPage());
-            // End of outer while
-
 
             // Inserting a new row
             // Doing a previous page to come back to the last page
@@ -116,6 +118,8 @@ public class CachedRowSetSample {
             if (doesItemIdExist(newItemId)) {
                 System.out.println("Item ID " + newItemId + " already exists");
             } else {
+                System.out.println("\nItem " + newItemId + " does not exist\n");
+
                 crs.previousPage();
                 crs.moveToInsertRow();
                 crs.updateInt("ITEM_ID", newItemId);
@@ -184,13 +188,11 @@ public class CachedRowSetSample {
         try (PreparedStatement ps = conn.prepareStatement(query)){
             ps.setInt(1, id);
             if (ps.executeQuery().next()) {
-                System.out.println("\nItem " + id + " does exist\n");
                 return true;
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         } 
-        System.out.println("\nItem " + id + " does not exist\n");
         return false;
     }
 
@@ -210,7 +212,7 @@ public class CachedRowSetSample {
 
     public static void main(String[] args) {
         JDBCTutorialUtilities myJDBCTutorialUtilities;
-        Connection myConnection = null;
+        Connection connection = null;
 
         if (args.length == 0) {
             System.err.println("Properties file not specified at command line");
@@ -226,14 +228,15 @@ public class CachedRowSetSample {
         }
 
         try {
-            myConnection = myJDBCTutorialUtilities.getConnection();
+            connection = myJDBCTutorialUtilities.getConnection();
 
             CachedRowSetSample myCachedRowSetSample =
-                new CachedRowSetSample(myConnection, myJDBCTutorialUtilities);
+                new CachedRowSetSample(connection, myJDBCTutorialUtilities);
             
-            myConnection.setCatalog(myCachedRowSetSample.dbName);
+            connection.setCatalog(myCachedRowSetSample.dbName);
             
-            CachedRowSetSample.viewTable(myConnection);
+            System.out.println();
+            CachedRowSetSample.viewTable(connection);
             myCachedRowSetSample.testPaging();
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
@@ -241,7 +244,7 @@ public class CachedRowSetSample {
             System.out.println("Unexpected exception");
             ex.printStackTrace(System.err);
         } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
+            JDBCTutorialUtilities.closeConnection(connection);
         }
     }
 }
