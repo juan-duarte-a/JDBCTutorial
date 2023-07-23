@@ -388,6 +388,7 @@ public class JDBCTutorialUtilities {
                     + dbMetaData.supportsResultSetConcurrency(
                             ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE));
             JDBCTutorialUtilities.cursorHoldabilitySupport(conn);
+            JDBCTutorialUtilities.rowIdLifetime(conn);
         }
         
         return conn;
@@ -524,8 +525,6 @@ public class JDBCTutorialUtilities {
             CoffeesTable.viewTable(myConnection);
             System.out.println();
 
-            JDBCTutorialUtilities.cursorHoldabilitySupport(myConnection);
-            JDBCTutorialUtilities.rowIdLifetime(myConnection);
 
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
